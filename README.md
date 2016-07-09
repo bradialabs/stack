@@ -34,7 +34,7 @@ The `Data` property is provided for custom data that your application
 will store with the user. You can store any struct and it will be stored
 as an embedded document in MongoDB.
 
-### Funtions
+### Functions
 
 #### NewUser
 
