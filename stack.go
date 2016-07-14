@@ -1,3 +1,4 @@
+// Stack is a collection of middleware, handlers, and models that help facilitate the creation of golang web services.
 package stack
 
 import (
