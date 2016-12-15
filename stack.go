@@ -1,9 +1,8 @@
-// Stack is a collection of middleware, handlers, and models that help facilitate the creation of golang web services.
+// Package stack is a collection of middleware, handlers, and models that help facilitate the creation of golang web services.
 package stack
 
 import (
 	"context"
-	"net/http"
 
 	"gopkg.in/mgo.v2"
 )
@@ -24,16 +23,6 @@ func GetDb(ctx context.Context) *mgo.Database {
 func GetUser(ctx context.Context) *User {
 	return ctx.Value(userKey).(*User)
 }
-
-// Handler is like net/http's http.Handler, but also includes a
-// mechanism for serving requests with a context.
-type Handler interface {
-	ServeHTTPC(context.Context, http.ResponseWriter, *http.Request)
-}
-
-// HandlerFunc is like net/http's http.HandlerFunc, but supports a context
-// object.
-type HandlerFunc func(context.Context, http.ResponseWriter, *http.Request)
 
 // SetJwtSecret sets the secret that will be used to sign and verify JWT tokens
 func SetJwtSecret(secret []byte) {

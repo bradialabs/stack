@@ -13,7 +13,7 @@ import (
 )
 
 // MongoMiddleware adds mgo MongoDB to context
-func MongoMiddleware(dbName string, connectURI string, next Handler) HandlerFunc {
+func MongoMiddleware(dbName string, connectURI string) func(next http.Handler) http.Handler {
 	// setup the mgo connection
 	session, err := mgo.Dial(connectURI)
 
@@ -21,20 +21,23 @@ func MongoMiddleware(dbName string, connectURI string, next Handler) HandlerFunc
 		panic(err)
 	}
 
-	return func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-		reqSession := session.Clone()
-		defer reqSession.Close()
-		db := reqSession.DB(dbName)
-		ctx = context.WithValue(ctx, dbKey, db)
-		next.ServeHTTPC(ctx, w, r)
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			reqSession := session.Clone()
+			defer reqSession.Close()
+			db := reqSession.DB(dbName)
+			ctx := context.WithValue(r.Context(), dbKey, db)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		}
+		return http.HandlerFunc(fn)
 	}
 }
 
 // BasicMiddleware adds Basic Auth to routes. This assumes
 // that the route is using the MongoMiddleware
-func BasicMiddleware(next Handler) HandlerFunc {
-	return func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-		db := GetDb(ctx)
+func BasicMiddleware(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		db := GetDb(r.Context())
 		if db == nil {
 			log.Print("No database context")
 			http.Error(w, "Not authorized", 401)
@@ -80,17 +83,19 @@ func BasicMiddleware(next Handler) HandlerFunc {
 		user.Password = ""
 
 		//Set the logged in user in the context
-		ctx = context.WithValue(ctx, userKey, user)
+		ctx := context.WithValue(r.Context(), userKey, user)
 
-		next.ServeHTTPC(ctx, w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	}
+
+	return http.HandlerFunc(fn)
 }
 
 // JwtAuthMiddleware JWT Bearer Authentication to routes. This assumes
 // that the route is using the MongoMiddleware
-func JwtAuthMiddleware(next Handler) HandlerFunc {
-	return func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-		db := GetDb(ctx)
+func JwtAuthMiddleware(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		db := GetDb(r.Context())
 		if db == nil {
 			log.Print("No database context")
 			http.Error(w, "Not authorized", 401)
@@ -128,8 +133,9 @@ func JwtAuthMiddleware(next Handler) HandlerFunc {
 		user.Password = ""
 
 		//Set the logged in user in the context
-		ctx = context.WithValue(ctx, userKey, user)
+		ctx := context.WithValue(r.Context(), userKey, user)
 
-		next.ServeHTTPC(ctx, w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	}
+	return http.HandlerFunc(fn)
 }
