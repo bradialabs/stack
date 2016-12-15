@@ -2,11 +2,10 @@
 package stack
 
 import (
+	"context"
 	"net/http"
 
 	"gopkg.in/mgo.v2"
-
-	"golang.org/x/net/context"
 )
 
 type key int

@@ -1,14 +1,14 @@
 package stack
 
 import (
+	"context"
 	"encoding/base64"
 	"log"
 	"net/http"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
-
-	"golang.org/x/net/context"
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go/request"
 	"gopkg.in/mgo.v2"
 )
 
@@ -96,7 +96,7 @@ func JwtAuthMiddleware(next Handler) HandlerFunc {
 			http.Error(w, "Not authorized", 401)
 		}
 
-		token, err := jwt.ParseFromRequest(r, func(token *jwt.Token) (interface{}, error) {
+		token, err := request.ParseFromRequest(r, request.AuthorizationHeaderExtractor, func(token *jwt.Token) (interface{}, error) {
 			return jwtSecret, nil
 		})
 
@@ -115,11 +115,11 @@ func JwtAuthMiddleware(next Handler) HandlerFunc {
 			http.Error(w, "Invalid Token", 401)
 			return
 		}
-
+		claims := token.Claims.(jwt.MapClaims)
 		//Find the user in the database
-		user, err := FindUserByID(token.Claims["id"].(string), db)
+		user, err := FindUserByID(claims["id"].(string), db)
 		if err != nil || user == nil {
-			log.Printf("User %s not found.", token.Claims["id"].(string))
+			log.Printf("User %s not found.", claims["id"].(string))
 			http.Error(w, "Not authorized", 401)
 			return
 		}

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"golang.org/x/net/context"
 )
 
 type userdata struct {
@@ -20,8 +19,8 @@ type userdata struct {
 
 // SignUpHandler is a Handler function for handling a user
 // user signup route
-func SignUpHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	db := GetDb(ctx)
+func SignUpHandler(w http.ResponseWriter, r *http.Request) {
+	db := GetDb(r.Context())
 	if db == nil {
 		http.Error(w, "No database context", 500)
 		return
@@ -53,23 +52,24 @@ func SignUpHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) 
 
 // SignInHandler will return a JWT token for the user that signed in.
 // This route must use the BasicMiddleware for authentication
-func SignInHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	db := GetDb(ctx)
+func SignInHandler(w http.ResponseWriter, r *http.Request) {
+	db := GetDb(r.Context())
 	if db == nil {
 		http.Error(w, "No database context", 500)
 		return
 	}
 
-	user := GetUser(ctx)
+	user := GetUser(r.Context())
 	if user == nil {
 		http.Error(w, "No user context", 401)
 		return
 	}
 
-	token := jwt.New(jwt.SigningMethodHS256)
-	token.Claims["id"] = user.ID
-	token.Claims["iat"] = time.Now().Unix()
-	token.Claims["exp"] = time.Now().Add(time.Second * 3600 * 24).Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":  user.ID,
+		"iat": time.Now().Unix(),
+		"exp": time.Now().Add(time.Second * 3600 * 24).Unix(),
+	})
 
 	tokenString, err := token.SignedString(jwtSecret)
 	if err != nil {
