@@ -1,0 +1,56 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/dgrijalva/jwt-go",
+			"repository": "https://github.com/dgrijalva/jwt-go",
+			"vcs": "git",
+			"revision": "9ed569b5d1ac936e6494082958d63a6aa4fff99a",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/crypto/bcrypt",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "01be46f62051d02cb6a36c9b47b37b24e5758c81",
+			"branch": "master",
+			"path": "/bcrypt",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/crypto/blowfish",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "01be46f62051d02cb6a36c9b47b37b24e5758c81",
+			"branch": "master",
+			"path": "blowfish",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"vcs": "git",
+			"revision": "45e771701b814666a7eb299e6c7a57d0b1799e91",
+			"branch": "master",
+			"path": "/context",
+			"notests": true
+		},
+		{
+			"importpath": "gopkg.in/mgo.v2",
+			"repository": "https://gopkg.in/mgo.v2",
+			"vcs": "git",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"branch": "v2",
+			"notests": true
+		},
+		{
+			"importpath": "gopkg.in/tomb.v2",
+			"repository": "https://gopkg.in/tomb.v2",
+			"vcs": "git",
+			"revision": "d5d1b5820637886def9eef33e03a27a9f166942c",
+			"branch": "v2",
+			"notests": true
+		}
+	]
+}
