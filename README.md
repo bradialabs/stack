@@ -5,8 +5,7 @@ Stack is a collection of middleware, handlers, and models that help
 facilitate the creation of golang web services.
 
 ### Dependencies
-
-- [golang.org/x/net/context](https://golang.org/x/net/context)
+- Go v1.7 (For the use of `context`)
 - [golang.org/x/crypto/bcrypt](https://golang.org/x/crypto/bcrypt)
 - [github.com/bradialabs/shortid](https://github.com/bradialabs/shortid)
 - [github.com/dgrijalva/jwt-go](https://github.com/dgrijalva/jwt-go)
@@ -79,8 +78,9 @@ func (user *User) CheckPassword(password string) error
 Middleware
 ----------
 
-All middleware follows the pattern of ServeHTTPC using the
-[context](https://godoc.org/golang.org/x/net/context) package.
+The middleware now uses the built in context functionality of go. It sets
+values on the request context. This allows the middleware to maintain the
+original handler interface.
 
 ### MongoMiddleware
 
@@ -189,30 +189,27 @@ func main() {
 
 	r.Use(middleware.Logger)
 
-	r.Post("/api/1/signup", stack.SignUpHandler)
+	r.Post("/api/1/signup", SignupRouter())
 	r.Mount("/api/1", ApiRouter())
 	r.Mount("/api/1/login", LoginRouter())
 
 	http.ListenAndServe(":3333", r)
 }
 
-func ChiMongoMiddleware(next chi.Handler) chi.Handler {
-	return chi.HandlerFunc(stack.MongoMiddleware("chitest", "", next))
-}
+func SignupRouter() chi.Router {
+	r := chi.NewRouter()
 
-func ChiBasicMiddleware(next chi.Handler) chi.Handler {
-	return chi.HandlerFunc(stack.BasicMiddleware(next))
-}
+	r.Use(stack.MongoMiddleware)
 
-func ChiJwtAuthMiddleware(next chi.Handler) chi.Handler {
-	return chi.HandlerFunc(stack.JwtAuthMiddleware(next))
+	r.Get("/", stack.SignUpHandler)
+	return r
 }
 
 func LoginRouter() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(ChiMongoMiddleware)
-	r.Use(ChiBasicMiddleware)
+	r.Use(stack.MongoMiddleware)
+	r.Use(stack.BasicMiddleware)
 
 	r.Get("/", stack.SignInHandler)
 	return r
@@ -221,11 +218,11 @@ func LoginRouter() chi.Router {
 func ApiRouter() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(ChiMongoMiddleware)
-	r.Use(ChiJwtAuthMiddleware)
+	r.Use(stack.MongoMiddleware("chitest", ""))
+	r.Use(stack.JwtAuthMiddleware)
 
-	r.Get("/me", func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-		user := stack.GetUser(ctx)
+	r.Get("/me", func(w http.ResponseWriter, r *http.Request) {
+		user := stack.GetUser(r.Context())
 		j, er := json.Marshal(&user)
 		if er != nil {
 			log.Fatal(er)
@@ -233,9 +230,9 @@ func ApiRouter() chi.Router {
 		w.Write(j)
 	})
 
-	r.Put("/me", func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-		db := stack.GetDb(ctx)
-		user := stack.GetUser(ctx)
+	r.Put("/me", func(w http.ResponseWriter, r *http.Request) {
+		db := stack.GetDb(r.Context())
+		user := stack.GetUser(r.Context())
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {

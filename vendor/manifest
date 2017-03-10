@@ -5,7 +5,7 @@
 			"importpath": "github.com/dgrijalva/jwt-go",
 			"repository": "https://github.com/dgrijalva/jwt-go",
 			"vcs": "git",
-			"revision": "9ed569b5d1ac936e6494082958d63a6aa4fff99a",
+			"revision": "2268707a8f0843315e2004ee4f1d021dc08baedf",
 			"branch": "master",
 			"notests": true
 		},
@@ -13,7 +13,7 @@
 			"importpath": "golang.org/x/crypto/bcrypt",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",
-			"revision": "01be46f62051d02cb6a36c9b47b37b24e5758c81",
+			"revision": "728b753d0135da6801d45a38e6f43ff55779c5c2",
 			"branch": "master",
 			"path": "/bcrypt",
 			"notests": true
@@ -22,18 +22,9 @@
 			"importpath": "golang.org/x/crypto/blowfish",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",
-			"revision": "01be46f62051d02cb6a36c9b47b37b24e5758c81",
+			"revision": "728b753d0135da6801d45a38e6f43ff55779c5c2",
 			"branch": "master",
 			"path": "blowfish",
-			"notests": true
-		},
-		{
-			"importpath": "golang.org/x/net/context",
-			"repository": "https://go.googlesource.com/net",
-			"vcs": "git",
-			"revision": "45e771701b814666a7eb299e6c7a57d0b1799e91",
-			"branch": "master",
-			"path": "/context",
 			"notests": true
 		},
 		{
